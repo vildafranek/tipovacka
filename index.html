@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mistrovská tipovačka | Mistři světa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ─── VARIABLES ─────────────────────────────────────── */
+    :root {
+      --red:        #E8321A;
+      --red-dark:   #b5220e;
+      --red-glow:   rgba(232,50,26,.4);
+      --blue:       #1B8CD6;
+      --blue-dark:  #1169a8;
+      --blue-glow:  rgba(27,140,214,.4);
+      --bg:         #080D1A;
+      --bg-2:       #0D1425;
+      --card-bg:    rgba(255,255,255,.05);
+      --card-hover: rgba(255,255,255,.09);
+      --text:       #EEF3FF;
+      --muted:      rgba(238,243,255,.55);
+      --border:     rgba(255,255,255,.10);
+      --gold:       #FFD700;
+      --silver:     #C0C0C0;
+      --bronze:     #CD7F32;
+    }
+
+    /* ─── RESET ─────────────────────────────────────────── */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+
+    body {
+      font-family:'Barlow', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── ICE RINK TEXTURE ───────────────────────────────── */
+    body::before {
+      content:'';
+      position:fixed; inset:0; pointer-events:none; z-index:0;
+      background:
+        radial-gradient(ellipse 120% 60% at 50% 0%, rgba(27,140,214,.07) 0%, transparent 70%),
+        repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(255,255,255,.013) 79px, rgba(255,255,255,.013) 80px);
+    }
+
+    /* ─── TOP ACCENT LINE ────────────────────────────────── */
+    .accent-line {
+      height: 4px;
+      background: linear-gradient(90deg, transparent 0%, var(--red) 20%, var(--red) 80%, transparent 100%);
+      box-shadow: 0 0 30px var(--red-glow);
+    }
+
+    /* ─── CONTAINER ──────────────────────────────────────── */
+    .container {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── HEADER ─────────────────────────────────────────── */
+    header {
+      padding: 44px 0 20px;
+      text-align: center;
+    }
+
+    .logo-wrap { margin-bottom: 18px; display:flex; justify-content:center; }
+    .logo-wrap img {
+      height: 110px; width: auto;
+      filter: drop-shadow(0 4px 24px rgba(232,50,26,.35));
+    }
+    /* fallback if logo missing */
+    .logo-text {
+      display: none;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900; font-size: 2.6rem; letter-spacing: 3px;
+    }
+    .logo-text .r { color: var(--red); }
+    .logo-text .b { color: var(--blue); }
+
+    .page-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2rem, 6vw, 3.4rem);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .page-title .accent { color: var(--red); text-shadow: 0 0 40px var(--red-glow); }
+
+    .page-subtitle {
+      color: var(--muted);
+      font-size: .95rem;
+      margin-top: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* rink lines decoration */
+    .rink-deco {
+      display: flex; align-items:center; gap:12px;
+      justify-content: center;
+      margin: 22px 0 0;
+    }
+    .rink-deco .rl { height:3px; width:60px; border-radius:2px; }
+    .rl-red  { background:var(--red);  box-shadow:0 0 14px var(--red-glow); }
+    .rl-blue { background:var(--blue); box-shadow:0 0 14px var(--blue-glow); }
+    .rink-deco .puck {
+      font-size: 1.4rem;
+      filter: drop-shadow(0 0 6px rgba(255,255,255,.3));
+    }
+
+    /* ─── PARTICIPANT COUNT ───────────────────────────────── */
+    .stat-bar {
+      display: flex; justify-content:center; gap:32px;
+      margin: 24px 0 8px;
+      flex-wrap: wrap;
+    }
+    .stat-item { text-align:center; }
+    .stat-num {
+      font-family:'Barlow Condensed', sans-serif;
+      font-weight:800; font-size:2rem;
+      color: var(--blue);
+      text-shadow: 0 0 20px var(--blue-glow);
+    }
+    .stat-label { font-size:.72rem; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; }
+
+    /* ─── SEARCH ─────────────────────────────────────────── */
+    .search-section { padding: 28px 0 36px; }
+
+    .search-wrap {
+      position: relative; max-width:580px; margin:0 auto;
+    }
+    .search-ico {
+      position:absolute; left:18px; top:50%; transform:translateY(-50%);
+      font-size:1.1rem; color:var(--muted); pointer-events:none;
+    }
+    #searchInput {
+      width:100%;
+      padding: 16px 48px 16px 50px;
+      background: rgba(255,255,255,.06);
+      border: 1.5px solid var(--border);
+      border-radius: 50px;
+      color: var(--text);
+      font-family:'Barlow', sans-serif; font-size:1.05rem;
+      outline: none;
+      transition: border-color .25s, box-shadow .25s, background .25s;
+      backdrop-filter: blur(12px);
+    }
+    #searchInput::placeholder { color:var(--muted); }
+    #searchInput:focus {
+      border-color: var(--blue);
+      background: rgba(255,255,255,.09);
+      box-shadow: 0 0 0 3px var(--blue-glow), 0 8px 30px rgba(0,0,0,.35);
+    }
+    .search-clear {
+      position:absolute; right:14px; top:50%; transform:translateY(-50%);
+      background:rgba(255,255,255,.1); border:none; color:var(--muted);
+      width:28px; height:28px; border-radius:50%;
+      cursor:pointer; font-size:1rem; display:none;
+      align-items:center; justify-content:center;
+      transition: background .2s, color .2s;
+    }
+    .search-clear:hover { background:rgba(255,255,255,.2); color:var(--text); }
+
+    /* ─── LOADING / ERROR ────────────────────────────────── */
+    .state-box { text-align:center; padding:60px 20px; }
+    .spinner {
+      width:52px; height:52px;
+      border:4px solid rgba(255,255,255,.08);
+      border-top-color: var(--red);
+      border-right-color: var(--blue);
+      border-radius:50%;
+      animation: spin .75s linear infinite;
+      margin:0 auto 20px;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .state-box p { color:var(--muted); font-size:.95rem; letter-spacing:1px; }
+
+    .error-box {
+      background:rgba(232,50,26,.1);
+      border:1px solid rgba(232,50,26,.3);
+      border-radius:14px;
+      padding:28px; text-align:center; color:var(--muted);
+    }
+    .error-box strong { color:var(--red); display:block; margin-bottom:8px; font-size:1.1rem; }
+
+    /* ─── SECTION LABEL ──────────────────────────────────── */
+    .section-label {
+      font-family:'Barlow Condensed', sans-serif;
+      font-weight:700; font-size:1rem;
+      letter-spacing:3px; text-transform:uppercase;
+      color:var(--muted);
+      display:flex; align-items:center; gap:14px;
+      margin-bottom:20px;
+    }
+    .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* ─── CATEGORIES GRID ────────────────────────────────── */
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 64px;
+    }
+
+    .cat-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      padding: 26px 22px 22px;
+      cursor: pointer;
+      transition: transform .22s, box-shadow .22s, background .22s, border-color .22s;
+      backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+    }
+    .cat-card::before {
+      content:'';
+      position:absolute; top:0; left:0; right:0; height:3px;
+      background: var(--c-color, var(--blue));
+      box-shadow: 0 0 18px var(--c-glow, var(--blue-glow));
+      transition: height .22s;
+    }
+    .cat-card:hover {
+      background: var(--card-hover);
+      border-color: rgba(255,255,255,.18);
+      transform: translateY(-5px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.45), 0 0 30px var(--c-glow, var(--blue-glow));
+    }
+    .cat-card:hover::before { height:4px; }
+
+    .cat-icon { font-size:2.1rem; margin-bottom:10px; display:block; }
+    .cat-name {
+      font-family:'Barlow Condensed', sans-serif;
+      font-weight:800; font-size:1.3rem;
+      letter-spacing:1px; text-transform:uppercase;
+      margin-bottom:5px;
+    }
+    .cat-desc { color:var(--muted); font-size:.85rem; line-height:1.4; }
+    .cat-meta {
+      margin-top:18px;
+      display:flex; align-items:baseline; gap:6px;
+    }
+    .cat-count {
+      font-family:'Barlow Condensed', sans-serif;
+      font-weight:800; font-size:2.2rem;
+      color: var(--c-color, var(--blue));
+      text-shadow: 0 0 20px var(--c-glow, var(--blue-glow));
+    }
+    .cat-count-lbl {
+      font-size:.72rem; color:var(--muted);
+      letter-spacing:1px; text-transform:uppercase;
+    }
+    .cat-arrow {
+      position:absolute; right:18px; bottom:22px;
+      color:var(--muted); font-size:1.1rem;
+      transition: transform .22s, color .22s;
+    }
+    .cat-card:hover .cat-arrow { transform:translateX(5px); color:var(--text); }
+
+    /* ─── TOP-10 MODAL ───────────────────────────────────── */
+    .overlay {
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.88);
+      backdrop-filter:blur(10px);
+      z-index:9000;
+      display:flex; align-items:center; justify-content:center;
+      padding:20px;
+      opacity:0; visibility:hidden;
+      transition: opacity .3s, visibility .3s;
+    }
+    .overlay.open { opacity:1; visibility:visible; }
+
+    .modal {
+      background: var(--bg-2);
+      border: 1.5px solid rgba(255,255,255,.13);
+      border-radius: 22px;
+      width:100%; max-width:660px; max-height:90vh;
+      overflow-y:auto;
+      transform: scale(.92) translateY(24px);
+      transition: transform .3s;
+    }
+    .overlay.open .modal { transform: scale(1) translateY(0); }
+
+    .modal-head {
+      position:sticky; top:0;
+      background: var(--bg-2);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 22px;
+      display:flex; align-items:center; justify-content:space-between;
+      z-index:1;
+    }
+    .modal-head-left { display:flex; align-items:center; gap:12px; }
+    .modal-cat-icon { font-size:1.8rem; }
+    .modal-title {
+      font-family:'Barlow Condensed', sans-serif;
+      font-weight:800; font-size:1.55rem;
+      letter-spacing:2px; text-transform:uppercase;
+    }
+    .modal-close {
+      background:rgba(255,255,255,.09); border:none; color:var(--text);
+      width:36px; height:36px; border-radius:50%; cursor:pointer;
+      font-size:1.05rem; transition:background .2s;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .modal-close:hover { background:rgba(255,255,255,.18); }
+    .modal-body { padding:22px; }
+
+    /* top-10 list */
+    .top-list { list-style:none; }
+    .top-item {
+      display:flex; align-items:center; gap:14px;
+      padding:13px 14px;
+      border-radius:12px; margin-bottom:8px;
+      background:rgba(255,255,255,.04);
+      transition:background .2s;
+    }
+    .top-item:hover { background:rgba(255,255,255,.07); }
+    .top-item.p1 { background:rgba(255,215,0,.09); border:1px solid rgba(255,215,0,.22); }
+    .top-item.p2 { background:rgba(192,192,192,.06); border:1px solid rgba(192,192,192,.16); }
+    .top-item.p3 { background:rgba(205,127,50,.07); border:1px solid rgba(205,127,50,.18); }
+
+    .badge {
+      width:36px; height:36px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Barlow Condensed', sans-serif; font-weight:800; font-size:.92rem;
+      flex-shrink:0;
+    }
+    .p1 .badge { background:var(--gold);   color:#111; font-size:1.1rem; }
+    .p2 .badge { background:var(--silver); color:#111; }
+    .p3 .badge { background:var(--bronze); color:#111; }
+    .pn .badge { background:rgba(255,255,255,.1); color:var(--muted); }
+
+    .item-name { flex:1; font-weight:600; font-size:.98rem; }
+    .item-score-wrap { text-align:right; }
+    .item-score {
+      font-family:'Barlow Condensed', sans-serif;
+      font-weight:800; font-size:1.5rem;
+      color: var(--blue);
+    }
+    .item-score-lbl { font-size:.7rem; color:var(--muted); }
+
+    /* ─── SEARCH RESULTS ─────────────────────────────────── */
+    #searchResults { display:none; margin-bottom:64px; }
+    #searchResults.show { display:block; }
+
+    .player-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      overflow:hidden;
+      margin-bottom:24px;
+      backdrop-filter:blur(12px);
+    }
+
+    .player-head {
+      background: linear-gradient(135deg, rgba(232,50,26,.18), rgba(27,140,214,.18));
+      padding: 20px 22px;
+      display:flex; align-items:center; gap:16px;
+      border-bottom:1px solid var(--border);
+    }
+    .p-avatar {
+      width:54px; height:54px; border-radius:50%;
+      background:linear-gradient(135deg, var(--red), var(--blue));
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Barlow Condensed', sans-serif;
+      font-weight:900; font-size:1.5rem; flex-shrink:0;
+      box-shadow: 0 4px 16px rgba(0,0,0,.4);
+    }
+    .p-name {
+      font-family:'Barlow Condensed', sans-serif;
+      font-weight:800; font-size:1.55rem; letter-spacing:1px;
+    }
+    .p-team { color:var(--muted); font-size:.87rem; margin-top:2px; }
+
+    /* scores band */
+    .p-scores {
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
+      gap:1px; background:var(--border);
+    }
+    .score-cell {
+      background: var(--bg); padding:14px 12px; text-align:center;
+    }
+    .sc-lbl {
+      font-size:.68rem; color:var(--muted);
+      letter-spacing:.4px; text-transform:uppercase;
+      line-height:1.3; margin-bottom:5px;
+    }
+    .sc-val {
+      font-family:'Barlow Condensed', sans-serif;
+      font-weight:800; font-size:1.7rem;
+    }
+    .sc-rank { font-size:.72rem; color:var(--muted); margin-top:1px; }
+
+    /* tips grid */
+    .p-tips { padding:20px 22px; }
+    .tips-head {
+      font-family:'Barlow Condensed', sans-serif;
+      font-weight:700; font-size:.95rem;
+      letter-spacing:2.5px; text-transform:uppercase;
+      color:var(--muted); margin-bottom:14px;
+    }
+    .tips-grid {
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr));
+      gap:9px;
+    }
+    .tip-item {
+      background:rgba(255,255,255,.04);
+      border-radius:10px; padding:9px 13px;
+    }
+    .tip-lbl {
+      font-size:.68rem; color:var(--muted);
+      text-transform:uppercase; letter-spacing:.4px; margin-bottom:3px;
+    }
+    .tip-val { font-weight:600; font-size:.9rem; word-break:break-word; }
+
+    /* placement tips: 1-14 grid */
+    .placement-grid {
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr));
+      gap:8px; margin-bottom:14px;
+    }
+    .pl-item {
+      background:rgba(255,255,255,.04); border-radius:10px;
+      padding:8px 12px; display:flex; align-items:center; gap:8px;
+    }
+    .pl-rank {
+      font-family:'Barlow Condensed', sans-serif;
+      font-weight:800; font-size:1.1rem; color:var(--muted); flex-shrink:0;
+    }
+    .pl-team { font-weight:600; font-size:.85rem; }
+
+    /* no-results */
+    .no-results { text-align:center; padding:48px 20px; color:var(--muted); }
+    .no-results-ico { font-size:3rem; margin-bottom:12px; }
+
+    /* ─── REFRESH BTN ────────────────────────────────────── */
+    .refresh-btn {
+      background:rgba(255,255,255,.07);
+      border:1px solid var(--border);
+      color:var(--text); padding:9px 22px;
+      border-radius:24px; cursor:pointer;
+      font-family:'Barlow', sans-serif; font-size:.85rem;
+      transition: all .2s;
+      display:inline-flex; align-items:center; gap:7px;
+    }
+    .refresh-btn:hover {
+      background:rgba(255,255,255,.13); border-color:var(--blue);
+      box-shadow: 0 0 16px var(--blue-glow);
+    }
+    .refresh-btn.spinning .ico { animation:spin .6s linear infinite; display:inline-block; }
+
+    /* ─── FOOTER ─────────────────────────────────────────── */
+    footer {
+      border-top:1px solid var(--border);
+      padding:28px 0; text-align:center;
+      color:var(--muted); font-size:.83rem;
+    }
+    footer .footer-inner { display:flex; flex-direction:column; align-items:center; gap:12px; }
+
+    /* ─── SCROLLBAR ──────────────────────────────────────── */
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:rgba(255,255,255,.14); border-radius:3px; }
+    ::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,.24); }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────── */
+    @media (max-width:640px) {
+      header { padding:28px 0 14px; }
+      .logo-wrap img { height:80px; }
+      .categories-grid { grid-template-columns:1fr 1fr; gap:12px; }
+      .cat-card { padding:18px 14px 16px; }
+      .cat-name { font-size:1.05rem; }
+      .p-scores { grid-template-columns:1fr 1fr; }
+      .tips-grid { grid-template-columns:1fr 1fr; }
+      .placement-grid { grid-template-columns:1fr 1fr; }
+      .stat-bar { gap:20px; }
+    }
+    @media (max-width:400px) {
+      .categories-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="accent-line"></div>
+
+<!-- ══════════ HEADER ══════════ -->
+<header>
+  <div class="container">
+    <div class="logo-wrap">
+      <img src="LOGO MS POSLEDNÍ.png" alt="Mistři světa" id="logoImg"
+           onerror="this.style.display='none'; document.getElementById('logoText').style.display='block';">
+      <div class="logo-text" id="logoText">
+        <span class="r">MISTŘI</span> <span class="b">SVĚTA</span>
+      </div>
+    </div>
+
+    <h1 class="page-title">
+      Mistrovská <span class="accent">Tipovačka</span>
+    </h1>
+    <p class="page-subtitle">Extraliga · Sezona 2024/25</p>
+
+    <div class="rink-deco">
+      <div class="rl rl-blue"></div>
+      <div class="rl rl-red"></div>
+      <span class="puck">🏒</span>
+      <div class="rl rl-red"></div>
+      <div class="rl rl-blue"></div>
+    </div>
+
+    <div class="stat-bar" id="statBar" style="display:none">
+      <div class="stat-item">
+        <div class="stat-num" id="statCount">—</div>
+        <div class="stat-label">Tipujících</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="statCategories">5</div>
+        <div class="stat-label">Kategorií</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════ MAIN ══════════ -->
+<main>
+  <div class="container">
+
+    <!-- Search -->
+    <section class="search-section">
+      <div class="search-wrap">
+        <span class="search-ico">🔍</span>
+        <input type="text" id="searchInput" placeholder="Hledej své jméno…" autocomplete="off" spellcheck="false">
+        <button class="search-clear" id="searchClear" title="Vymazat">✕</button>
+      </div>
+    </section>
+
+    <!-- Loading -->
+    <div id="stateLoading" class="state-box">
+      <div class="spinner"></div>
+      <p>Načítám výsledky tipovačky…</p>
+    </div>
+
+    <!-- Error -->
+    <div id="stateError" class="error-box" style="display:none">
+      <strong>Nepodařilo se načíst data</strong>
+      Stránka musí být otevřena přes server (ne přímo z disku).<br>
+      Spusť: <code style="background:rgba(255,255,255,.1);padding:2px 8px;border-radius:4px">python3 -m http.server 8080</code> a otevři <strong>http://localhost:8080</strong><br>
+      Na hostované doméně vše funguje automaticky.
+      <br><br>
+      <button class="refresh-btn" onclick="loadData()"><span class="ico">↺</span> Zkusit znovu</button>
+    </div>
+
+    <!-- Main content -->
+    <div id="mainContent" style="display:none">
+
+      <!-- Search results (hidden by default) -->
+      <div id="searchResults">
+        <p class="section-label">Výsledky hledání</p>
+        <div id="searchResultsList"></div>
+      </div>
+
+      <!-- Categories -->
+      <div id="categoriesSection">
+        <p class="section-label">Žebříčky</p>
+        <div class="categories-grid" id="catGrid"></div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<!-- ══════════ TOP-10 MODAL ══════════ -->
+<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <span class="modal-cat-icon" id="modalIcon"></span>
+        <span class="modal-title" id="modalTitle">Top 10</span>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <span>© 2025 Mistři světa &nbsp;·&nbsp; Extraliga tipovačka</span>
+      <button class="refresh-btn" id="refreshBtn" onclick="loadData()">
+        <span class="ico">↺</span> Aktualizovat data
+      </button>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════════════════ */
+const SHEET_ID  = '1ERE7N3K7M-PeILf22GiD44qHAdDtgm-d9TQqPnpEXvk';
+const CSV_URL   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+const GVIZ_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:__gvizCallback`;
+
+/* ═══════════════════════════════════════════════════════════
+   CATEGORIES DEFINITION
+═══════════════════════════════════════════════════════════ */
+const CATEGORIES = [
+  {
+    id: 'celkove',
+    name: 'Celkové pořadí',
+    icon: '🏆',
+    desc: 'Hlavní žebříček všech tipujících dle celkových bodů',
+    scoreCol: 'Počet bodů celkem',
+    rankCol:  'Umístění',
+    color: '#FFD700',
+    glow:  'rgba(255,215,0,.32)',
+  },
+  {
+    id: 'extra',
+    name: 'Extra bodování',
+    icon: '⚡',
+    desc: 'Žebříček s alternativním extra bodovacím systémem',
+    scoreCol: 'Počet bodů celkem - EXTRA BODOVÁNÍ',
+    rankCol:  'Umístění - EXTRA BODOVÁNÍ',
+    color: '#E8321A',
+    glow:  'rgba(232,50,26,.35)',
+  },
+  {
+    id: 'umisteni',
+    name: 'Tipování pořadí',
+    icon: '📊',
+    desc: 'Body získané za správné tipování finálního pořadí týmů',
+    scoreCol: 'Počet bodů za umístění',
+    rankCol:  null,
+    color: '#1B8CD6',
+    glow:  'rgba(27,140,214,.35)',
+  },
+  {
+    id: 'bonus',
+    name: 'Bonusové otázky',
+    icon: '🎯',
+    desc: 'Body za speciální bonusové otázky (střelec, finále, baráž…)',
+    scoreCol: 'Počet bodů za bonusové otázky',
+    rankCol:  null,
+    color: '#00C896',
+    glow:  'rgba(0,200,150,.3)',
+  },
+  {
+    id: 'extra_umisteni',
+    name: 'Extra — pořadí',
+    icon: '🔥',
+    desc: 'Extra bodování za tipování umístění týmů',
+    scoreCol: 'Počet bodů za umístění - EXTRA BODOVÁNÍ',
+    rankCol:  null,
+    color: '#FF6B35',
+    glow:  'rgba(255,107,53,.35)',
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════
+   TIP COLUMNS — co hráč tipoval
+═══════════════════════════════════════════════════════════ */
+const PLACEMENTS = Array.from({length:14}, (_,i) => ({
+  label: `${i+1}. místo`,
+  key:   `${i+1}. místo`,
+}));
+
+const BONUS_TIPS = [
+  { label:'Výhra finále',          key:'Výhra finále' },
+  { label:'Prohra finále',         key:'Prohra finále' },
+  { label:'Baráž',                 key:'Baráž' },
+  { label:'Nejlepší střelec',      key:'Nejlepší střelec' },
+  { label:'Počet gólů střelce',    key:'Počet gólů střelce' },
+  { label:'Nejtrestanější hráč',   key:'Nejtrestanější hráč' },
+  { label:'Tým — počet gólů',      key:'Tým - Počet gólů' },
+  { label:'Tým — přesilovky',      key:'Tým - Počet přesilovek' },
+  { label:'Tým — fauly',           key:'Tým - Počet faulů' },
+  { label:'Tipovačka — MISTŘI',    key:'Tipovačka - MISTŘI' },
+  { label:'Oblíbený MISTR',        key:'Oblíbený MISTR 1-4' },
+];
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let allData   = [];
+let headers   = [];
+let rankCache = {};   // cat.id -> sorted array
+
+/* ═══════════════════════════════════════════════════════════
+   CSV PARSER — zvládá quoted fields, česky
+═══════════════════════════════════════════════════════════ */
+function parseCSV(text) {
+  const rows = [];
+  let i = 0, n = text.length;
+
+  while (i < n) {
+    const row = [];
+    while (i < n && text[i] !== '\n') {
+      if (text[i] === '"') {
+        // quoted field
+        let val = '';
+        i++; // skip opening "
+        while (i < n) {
+          if (text[i] === '"') {
+            if (text[i+1] === '"') { val += '"'; i += 2; } // escaped quote
+            else { i++; break; } // closing quote
+          } else { val += text[i++]; }
+        }
+        row.push(val);
+        if (i < n && text[i] === ',') i++; // skip comma
+      } else {
+        // unquoted field
+        let val = '';
+        while (i < n && text[i] !== ',' && text[i] !== '\n') val += text[i++];
+        row.push(val.replace(/\r$/, ''));
+        if (i < n && text[i] === ',') i++;
+      }
+    }
+    if (i < n) i++; // skip \n
+    if (row.length > 1 || (row.length === 1 && row[0] !== '')) rows.push(row);
+  }
+  return rows;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DATA FETCHING
+═══════════════════════════════════════════════════════════ */
+function loadData() {
+  document.getElementById('stateLoading').style.display = 'block';
+  document.getElementById('mainContent').style.display  = 'none';
+  document.getElementById('stateError').style.display   = 'none';
+  document.getElementById('statBar').style.display      = 'none';
+  document.getElementById('refreshBtn').classList.add('spinning');
+
+  fetch(CSV_URL)
+    .then(r => r.text())
+    .then(csv => processCSV(csv))
+    .catch(err => {
+      console.error('Chyba při načítání dat:', err);
+      showError();
+    });
+}
+
+function showError() {
+  document.getElementById('refreshBtn').classList.remove('spinning');
+  document.getElementById('stateLoading').style.display = 'none';
+  document.getElementById('stateError').style.display   = 'block';
+}
+
+function processCSV(csvText) {
+  document.getElementById('refreshBtn').classList.remove('spinning');
+
+  const rows = parseCSV(csvText);
+  if (rows.length < 2) { showError(); return; }
+
+  headers = rows[0].map(h => h.trim());
+
+  allData = rows.slice(1)
+    .map(row => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        const raw = (row[i] || '').trim();
+        // Převeď čísla
+        const num = parseFloat(raw.replace(',', '.'));
+        obj[h] = raw === '' ? null : (!isNaN(num) && raw !== '' ? num : raw);
+      });
+      return obj;
+    })
+    .filter(r => r['Jméno a příjmení'] && String(r['Jméno a příjmení']).trim() !== '');
+
+  // Pre-build rank caches for all categories
+  rankCache = {};
+  CATEGORIES.forEach(cat => {
+    rankCache[cat.id] = [...allData]
+      .filter(r => r[cat.scoreCol] !== null && r[cat.scoreCol] !== undefined)
+      .sort((a, b) => (Number(b[cat.scoreCol]) || 0) - (Number(a[cat.scoreCol]) || 0));
+  });
+
+  renderCategories();
+  document.getElementById('statCount').textContent      = allData.length;
+  document.getElementById('statCategories').textContent = CATEGORIES.length;
+
+  document.getElementById('stateLoading').style.display = 'none';
+  document.getElementById('mainContent').style.display  = 'block';
+  document.getElementById('statBar').style.display      = 'flex';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER CATEGORIES
+═══════════════════════════════════════════════════════════ */
+function renderCategories() {
+  const grid = document.getElementById('catGrid');
+  grid.innerHTML = '';
+
+  CATEGORIES.forEach(cat => {
+    const count = (rankCache[cat.id] || []).length;
+
+    const card = document.createElement('div');
+    card.className = 'cat-card';
+    card.style.setProperty('--c-color', cat.color);
+    card.style.setProperty('--c-glow',  cat.glow);
+    card.innerHTML = `
+      <span class="cat-icon">${cat.icon}</span>
+      <div class="cat-name">${cat.name}</div>
+      <div class="cat-desc">${cat.desc}</div>
+      <div class="cat-meta">
+        <span class="cat-count">${count}</span>
+        <span class="cat-count-lbl">tipujících</span>
+      </div>
+      <span class="cat-arrow">→</span>
+    `;
+    card.addEventListener('click', () => openTop10(cat));
+    grid.appendChild(card);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOP-10 MODAL
+═══════════════════════════════════════════════════════════ */
+function openTop10(cat) {
+  const top10 = (rankCache[cat.id] || []).slice(0, 10);
+
+  document.getElementById('modalIcon').textContent  = cat.icon;
+  document.getElementById('modalTitle').textContent = cat.name;
+
+  const listHtml = top10.map((p, i) => {
+    const rank = i + 1;
+    const cls  = rank <= 3 ? `p${rank}` : 'pn';
+    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+    const score = p[cat.scoreCol] ?? '—';
+    const name  = p['Jméno a příjmení'] || 'Neznámý';
+    const team  = p['Oblíbený tým'] ? ` <span style="color:var(--muted);font-size:.78rem;font-weight:400"> · ${p['Oblíbený tým']}</span>` : '';
+
+    return `
+      <li class="top-item ${cls}">
+        <div class="badge">${rank <= 3 ? medal : rank}</div>
+        <div class="item-name">${name}${team}</div>
+        <div class="item-score-wrap">
+          <div class="item-score" style="color:${cat.color}">${score}</div>
+          <div class="item-score-lbl">bodů</div>
+        </div>
+      </li>`;
+  }).join('');
+
+  document.getElementById('modalBody').innerHTML = `<ul class="top-list">${listHtml}</ul>`;
+
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('overlay')) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ═══════════════════════════════════════════════════════════
+   SEARCH
+═══════════════════════════════════════════════════════════ */
+const searchInput   = document.getElementById('searchInput');
+const searchClear   = document.getElementById('searchClear');
+const searchResults = document.getElementById('searchResults');
+const resultsList   = document.getElementById('searchResultsList');
+const catSection    = document.getElementById('categoriesSection');
+
+let searchTimer;
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value;
+  searchClear.style.display = q.trim() ? 'flex' : 'none';
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => doSearch(q.trim()), 180);
+});
+
+searchClear.addEventListener('click', () => {
+  searchInput.value = '';
+  searchClear.style.display = 'none';
+  clearSearch();
+  searchInput.focus();
+});
+
+function clearSearch() {
+  searchResults.classList.remove('show');
+  catSection.style.display = '';
+}
+
+function doSearch(query) {
+  if (!query || !allData.length) { clearSearch(); return; }
+
+  // normalise: remove diacritics, lowercase
+  const norm = s => String(s || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  const q = norm(query);
+  const matches = allData.filter(r => norm(r['Jméno a příjmení']).includes(q));
+
+  catSection.style.display = 'none';
+  searchResults.classList.add('show');
+
+  if (!matches.length) {
+    resultsList.innerHTML = `
+      <div class="no-results">
+        <div class="no-results-ico">🔍</div>
+        <div>Žádný tipující nenalezen pro <strong>"${query}"</strong></div>
+      </div>`;
+    return;
+  }
+
+  resultsList.innerHTML = matches.map(p => buildPlayerCard(p)).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PLAYER CARD (search result)
+═══════════════════════════════════════════════════════════ */
+function buildPlayerCard(p) {
+  const name     = (p['Jméno a příjmení'] || '—').trim();
+  const initials = name.split(/\s+/).map(w => w[0] || '').join('').slice(0, 2).toUpperCase();
+  const team     = p['Oblíbený tým'] ? `<div class="p-team">❤️ ${p['Oblíbený tým']}</div>` : '';
+
+  /* -- scores band -- */
+  const scoresHtml = CATEGORIES.map(cat => {
+    const score = p[cat.scoreCol];
+    if (score === null || score === undefined) return '';
+    const sorted = rankCache[cat.id] || [];
+    const rank   = sorted.findIndex(r =>
+      (r['Jméno a příjmení'] || '').trim() === name
+    ) + 1;
+    const total  = sorted.length;
+    return `
+      <div class="score-cell">
+        <div class="sc-lbl">${cat.name}</div>
+        <div class="sc-val" style="color:${cat.color}">${score}</div>
+        <div class="sc-rank">${rank}. / ${total}</div>
+      </div>`;
+  }).join('');
+
+  /* -- placement tips (1-14) -- */
+  const placements = PLACEMENTS.map(t => {
+    const val = p[t.key];
+    if (!val && val !== 0) return '';
+    const num = parseInt(t.label);
+    const medal = num === 1 ? '🥇' : num === 2 ? '🥈' : num === 3 ? '🥉' : '';
+    return `
+      <div class="pl-item">
+        <span class="pl-rank">${num}.</span>
+        <span class="pl-team">${medal}${val}</span>
+      </div>`;
+  }).filter(Boolean).join('');
+
+  /* -- bonus tips -- */
+  const bonusHtml = BONUS_TIPS.map(t => {
+    const val = p[t.key];
+    if (val === null || val === undefined || val === '') return '';
+    return `
+      <div class="tip-item">
+        <div class="tip-lbl">${t.label}</div>
+        <div class="tip-val">${val}</div>
+      </div>`;
+  }).filter(Boolean).join('');
+
+  /* -- message -- */
+  const msgHtml = p['Vzkaz'] ? `
+    <div class="tip-item" style="grid-column:1/-1; background:rgba(27,140,214,.08); border:1px solid rgba(27,140,214,.2)">
+      <div class="tip-lbl">💬 Vzkaz</div>
+      <div class="tip-val" style="font-style:italic">"${p['Vzkaz']}"</div>
+    </div>` : '';
+
+  return `
+    <div class="player-card">
+      <div class="player-head">
+        <div class="p-avatar">${initials}</div>
+        <div>
+          <div class="p-name">${name}</div>
+          ${team}
+        </div>
+      </div>
+
+      <div class="p-scores">${scoresHtml}</div>
+
+      <div class="p-tips">
+        ${placements ? `<div class="tips-head">🏒 Tipy na pořadí</div>
+        <div class="placement-grid">${placements}</div>` : ''}
+
+        ${bonusHtml || msgHtml ? `
+          <div class="tips-head" style="margin-top:${placements ? '18px':'0'}">🎯 Bonusové tipy</div>
+          <div class="tips-grid">${bonusHtml}${msgHtml}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+loadData();
+</script>
+</body>
+</html>
