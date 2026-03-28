@@ -404,6 +404,7 @@
       font-weight:800; font-size:1.7rem;
     }
     .sc-rank { font-size:.72rem; color:var(--muted); margin-top:1px; }
+    .sc-score { font-size:.72rem; color:var(--muted); margin-top:3px; }
 
     /* tips grid */
     .p-tips { padding:20px 22px; }
@@ -1182,8 +1183,8 @@ function buildPlayerCard(p) {
     return `
       <div class="score-cell">
         <div class="sc-lbl">${cat.name}</div>
-        <div class="sc-val" style="color:${cat.color}">${score}</div>
-        <div class="sc-rank">${rank}. / ${total}</div>
+        <div class="sc-val" style="color:${cat.color}">${rank ? rank + '.' : '—'}</div>
+        <div class="sc-score">${score} bodů</div>
       </div>`;
   }).join('');
 
