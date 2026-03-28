@@ -76,6 +76,11 @@
       height: 110px; width: auto;
       filter: drop-shadow(0 4px 24px rgba(232,50,26,.35));
     }
+    /* Canvas logo (white bg removed) */
+    #logoCanvas {
+      height: 110px; width: auto;
+      filter: drop-shadow(0 4px 24px rgba(232,50,26,.35));
+    }
     /* fallback if logo missing */
     .logo-text {
       display: none;
@@ -465,6 +470,153 @@
     }
     footer .footer-inner { display:flex; flex-direction:column; align-items:center; gap:12px; }
 
+    /* ─── KLIKATELNÉ JMÉNO V TOP 10 ─────────────────────── */
+    .item-name-btn {
+      flex:1; font-weight:600; font-size:.98rem;
+      background:none; border:none; color:var(--text);
+      text-align:left; cursor:pointer; padding:0;
+      transition: color .2s;
+      display:flex; align-items:center; gap:6px;
+    }
+    .item-name-btn:hover { color: var(--blue); }
+    .item-name-btn::after {
+      content:'›';
+      font-size:1.1rem; color:var(--muted);
+      transition: transform .2s, color .2s;
+    }
+    .item-name-btn:hover::after { transform:translateX(3px); color:var(--blue); }
+
+    /* Back button v modalu */
+    .modal-back {
+      display:flex; align-items:center; gap:8px;
+      background:none; border:none; color:var(--muted);
+      cursor:pointer; font-family:'Barlow', sans-serif;
+      font-size:.9rem; padding:0 0 16px; transition:color .2s;
+    }
+    .modal-back:hover { color:var(--text); }
+
+    /* ─── PODCAST BANNER ─────────────────────────────────── */
+    .podcast-banner {
+      margin: 20px 0 0;
+      background: linear-gradient(135deg, rgba(232,50,26,.12), rgba(27,140,214,.12));
+      border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 20px;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+
+    .podcast-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    .podcast-video {
+      position: relative;
+      aspect-ratio: 16/9;
+      background: #000;
+    }
+    .podcast-video iframe {
+      width: 100%; height: 100%;
+      border: none;
+    }
+
+    .podcast-info {
+      padding: 28px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .podcast-label {
+      font-size: .7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .podcast-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+    .podcast-title .r { color: var(--red); }
+    .podcast-title .b { color: var(--blue); }
+
+    .podcast-desc {
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.5;
+    }
+
+    .podcast-subscribe {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--red);
+      color: #fff;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background .2s, transform .15s, box-shadow .2s;
+      width: fit-content;
+    }
+    .podcast-subscribe:hover {
+      background: var(--red-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(232,50,26,.4);
+    }
+
+    .social-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .social-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-size: .82rem;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 20px;
+      text-decoration: none;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .social-btn:hover {
+      background: rgba(255,255,255,.13);
+      border-color: rgba(255,255,255,.25);
+      transform: translateY(-1px);
+    }
+    .social-btn.spotify:hover  { border-color: #1DB954; color: #1DB954; }
+    .social-btn.apple:hover    { border-color: #FC3C44; color: #FC3C44; }
+    .social-btn.instagram:hover{ border-color: #E1306C; color: #E1306C; }
+    .social-btn.twitter:hover  { border-color: #1DA1F2; color: #1DA1F2; }
+    .social-btn.hero:hover     { border-color: #FFD700; color: #FFD700; }
+
+    @media (max-width: 768px) {
+      .podcast-inner { grid-template-columns: 1fr; }
+      .podcast-info  { padding: 20px; }
+      .podcast-title { font-size: 1.5rem; }
+    }
+
     /* ─── SCROLLBAR ──────────────────────────────────────── */
     ::-webkit-scrollbar { width:6px; }
     ::-webkit-scrollbar-track { background:transparent; }
@@ -591,6 +743,69 @@
     <div class="modal-body" id="modalBody"></div>
   </div>
 </div>
+
+<!-- ══════════ PODCAST BANNER ══════════ -->
+<section style="position:relative;z-index:1;">
+  <div class="container">
+    <div class="podcast-banner">
+      <div class="podcast-inner">
+        <!-- Nejnovější video z kanálu -->
+        <div class="podcast-video">
+          <iframe
+            src="https://www.youtube.com/embed?listType=user_uploads&list=UCK0NTTDCBCO11KnWXmhHWOA&index=0"
+            title="Mistři světa — nejnovější video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+        <!-- Info + sítě -->
+        <div class="podcast-info">
+          <div class="podcast-label">🎙️ Podcast</div>
+          <div class="podcast-title">
+            <span class="r">MISTŘI</span><br><span class="b">SVĚTA</span>
+          </div>
+          <div class="podcast-desc">
+            Hokejový podcast plný zábavy, analýz a tipování. Odebírej kanál a sleduj nás na sítích!
+          </div>
+
+          <a class="podcast-subscribe"
+             href="https://www.youtube.com/channel/UCK0NTTDCBCO11KnWXmhHWOA?sub_confirmation=1"
+             target="_blank" rel="noopener">
+            ▶ Odebírat na YouTube
+          </a>
+
+          <div class="social-links">
+            <a class="social-btn spotify"
+               href="https://open.spotify.com/show/53Xb8gIgRh61s6fclKXLgd"
+               target="_blank" rel="noopener">
+              🎵 Spotify
+            </a>
+            <a class="social-btn apple"
+               href="https://podcasts.apple.com/us/podcast/mist%C5%99i-sv%C4%9Bta/id1782987710"
+               target="_blank" rel="noopener">
+              🎧 Apple Podcasts
+            </a>
+            <a class="social-btn instagram"
+               href="https://www.instagram.com/mistrisveta_official/"
+               target="_blank" rel="noopener">
+              📸 Instagram
+            </a>
+            <a class="social-btn twitter"
+               href="https://x.com/MistriSveta"
+               target="_blank" rel="noopener">
+              𝕏 Twitter/X
+            </a>
+            <a class="social-btn hero"
+               href="https://herohero.co/mistrisveta"
+               target="_blank" rel="noopener">
+              ⭐ HeroHero
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ══════════ FOOTER ══════════ -->
 <footer>
@@ -835,17 +1050,18 @@ function openTop10(cat) {
   document.getElementById('modalTitle').textContent = cat.name;
 
   const listHtml = top10.map((p, i) => {
-    const rank = i + 1;
-    const cls  = rank <= 3 ? `p${rank}` : 'pn';
+    const rank  = i + 1;
+    const cls   = rank <= 3 ? `p${rank}` : 'pn';
     const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
     const score = p[cat.scoreCol] ?? '—';
     const name  = p['Jméno a příjmení'] || 'Neznámý';
     const team  = p['Oblíbený tým'] ? ` <span style="color:var(--muted);font-size:.78rem;font-weight:400"> · ${p['Oblíbený tým']}</span>` : '';
+    const idx   = allData.indexOf(p);
 
     return `
       <li class="top-item ${cls}">
         <div class="badge">${rank <= 3 ? medal : rank}</div>
-        <div class="item-name">${name}${team}</div>
+        <button class="item-name-btn" onclick="openPlayerDetail(${idx}, '${cat.id}')">${name}${team}</button>
         <div class="item-score-wrap">
           <div class="item-score" style="color:${cat.color}">${score}</div>
           <div class="item-score-lbl">bodů</div>
@@ -854,6 +1070,8 @@ function openTop10(cat) {
   }).join('');
 
   document.getElementById('modalBody').innerHTML = `<ul class="top-list">${listHtml}</ul>`;
+  // Ulož aktuální kategorii pro "back" tlačítko
+  document.getElementById('modal').dataset.catId = cat.id;
 
   document.getElementById('overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -866,6 +1084,24 @@ function closeModal() {
 
 function handleOverlayClick(e) {
   if (e.target === document.getElementById('overlay')) closeModal();
+}
+
+function openPlayerDetail(playerIdx, catId) {
+  const p   = allData[playerIdx];
+  const cat = CATEGORIES.find(c => c.id === catId);
+  if (!p) return;
+
+  const name = (p['Jméno a příjmení'] || '—').trim();
+  document.getElementById('modalIcon').textContent  = '👤';
+  document.getElementById('modalTitle').textContent = name;
+
+  // Back button + player card
+  document.getElementById('modalBody').innerHTML = `
+    <button class="modal-back" onclick="openTop10(CATEGORIES.find(c=>c.id==='${catId}'))">
+      ← Zpět na žebříček
+    </button>
+    ${buildPlayerCard(p)}
+  `;
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
@@ -1003,6 +1239,48 @@ function buildPlayerCard(p) {
       </div>
     </div>`;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   LOGO — odstraní bílé pozadí pomocí Canvas
+═══════════════════════════════════════════════════════════ */
+function removeWhiteBackground(imgEl) {
+  try {
+    const canvas  = document.createElement('canvas');
+    canvas.width  = imgEl.naturalWidth;
+    canvas.height = imgEl.naturalHeight;
+    canvas.id     = 'logoCanvas';
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(imgEl, 0, 0);
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const d = data.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i], g = d[i+1], b = d[i+2];
+      // Průměrná světlost — pokud je pixel velmi světlý (bílé pozadí), zprůhledni ho
+      const bright = (r * 299 + g * 587 + b * 114) / 1000;
+      if (bright > 245) {
+        d[i+3] = 0;                                     // plně průhledný
+      } else if (bright > 220) {
+        d[i+3] = Math.round(255 * (245 - bright) / 25); // plynulý přechod
+      }
+    }
+    ctx.putImageData(data, 0, 0);
+    // Nahraď img elementem canvas
+    imgEl.parentNode.replaceChild(canvas, imgEl);
+  } catch(e) {
+    // Cross-origin nebo jiná chyba — nechej původní logo
+    console.warn('Logo canvas:', e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const img = document.getElementById('logoImg');
+  if (!img) return;
+  if (img.complete && img.naturalWidth > 0) {
+    removeWhiteBackground(img);
+  } else {
+    img.addEventListener('load', () => removeWhiteBackground(img));
+  }
+});
 
 /* ═══════════════════════════════════════════════════════════
    INIT
