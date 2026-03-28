@@ -752,7 +752,8 @@
         <!-- Nejnovější video z kanálu -->
         <div class="podcast-video">
           <iframe
-            src="https://www.youtube.com/embed?listType=user_uploads&list=UCK0NTTDCBCO11KnWXmhHWOA&index=0"
+            id="podcastEmbed"
+            src="https://www.youtube.com/embed?list=UUK0NTTDCBCO11KnWXmhHWOA&listType=playlist"
             title="Mistři světa — nejnovější video"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen>
@@ -1281,6 +1282,30 @@ document.addEventListener('DOMContentLoaded', () => {
     img.addEventListener('load', () => removeWhiteBackground(img));
   }
 });
+
+/* ═══════════════════════════════════════════════════════════
+   LATEST YOUTUBE VIDEO via RSS
+═══════════════════════════════════════════════════════════ */
+(function loadLatestVideo() {
+  const CHANNEL_ID = 'UCK0NTTDCBCO11KnWXmhHWOA';
+  const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
+  const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
+  fetch(proxy)
+    .then(r => r.json())
+    .then(data => {
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(data.contents, 'text/xml');
+      const entry = xml.querySelector('entry');
+      if (!entry) return;
+      const videoId = entry.querySelector('videoId')?.textContent ||
+        (entry.querySelector('link')?.getAttribute('href') || '').split('v=')[1];
+      if (videoId) {
+        const embed = document.getElementById('podcastEmbed');
+        if (embed) embed.src = `https://www.youtube.com/embed/${videoId}`;
+      }
+    })
+    .catch(() => {/* fallback: playlist stays */});
+})();
 
 /* ═══════════════════════════════════════════════════════════
    INIT
