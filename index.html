@@ -447,18 +447,40 @@
 
     /* ─── MISTŘI SVĚTA SEKCE ─────────────────────────────── */
     .mistri-section { margin-top:40px; }
-    .mistri-section .section-label { margin-bottom:16px; }
+    .mistri-toggle {
+      display:flex; align-items:center; justify-content:space-between;
+      width:100%; background:var(--card-bg);
+      border:1.5px solid rgba(232,50,26,.25);
+      border-radius:16px; padding:16px 22px;
+      cursor:pointer; transition: background .2s, border-color .2s;
+      text-align:left;
+    }
+    .mistri-toggle:hover { background:var(--card-hover); border-color:rgba(232,50,26,.45); }
+    .mistri-toggle-left { display:flex; align-items:center; gap:12px; }
+    .mistri-toggle-title {
+      font-family:'Barlow Condensed', sans-serif;
+      font-weight:800; font-size:1.1rem; letter-spacing:1px; text-transform:uppercase;
+    }
+    .mistri-toggle-sub { font-size:.78rem; color:var(--muted); margin-top:2px; }
+    .mistri-chevron {
+      font-size:1.2rem; color:var(--muted); transition:transform .3s;
+      flex-shrink:0;
+    }
+    .mistri-section.open .mistri-chevron { transform:rotate(180deg); }
+    .mistri-body {
+      overflow:hidden; max-height:0;
+      transition:max-height .4s cubic-bezier(.4,0,.2,1);
+    }
+    .mistri-section.open .mistri-body { max-height:9999px; }
     .mistri-grid {
       display:grid; grid-template-columns:repeat(2, 1fr); gap:20px;
+      padding-top:20px;
     }
-    .mistri-grid .player-card {
-      border: 1.5px solid rgba(232,50,26,.25);
-    }
+    .mistri-grid .player-card { border:1.5px solid rgba(232,50,26,.25); }
     .mistri-badge {
       display:inline-flex; align-items:center; gap:6px;
       background:linear-gradient(90deg, rgba(232,50,26,.18), rgba(27,140,214,.18));
-      border:1px solid rgba(232,50,26,.3);
-      border-radius:20px; padding:3px 10px;
+      border:1px solid rgba(232,50,26,.3); border-radius:20px; padding:3px 10px;
       font-size:.7rem; font-weight:700; letter-spacing:.5px;
       text-transform:uppercase; color:var(--muted); margin-bottom:6px;
     }
@@ -748,8 +770,19 @@
 
         <!-- Tipy Mistrů světa -->
         <div class="mistri-section" id="mistriSection" style="display:none">
-          <p class="section-label">Tipy Mistrů světa</p>
-          <div class="mistri-grid" id="mistriGrid"></div>
+          <button class="mistri-toggle" onclick="document.getElementById('mistriSection').classList.toggle('open')">
+            <div class="mistri-toggle-left">
+              <span style="font-size:1.4rem">🎙️</span>
+              <div>
+                <div class="mistri-toggle-title">Tipy Mistrů světa</div>
+                <div class="mistri-toggle-sub">Franěk · Duda · Homolka · Tlustý — klikni pro zobrazení</div>
+              </div>
+            </div>
+            <span class="mistri-chevron">▼</span>
+          </button>
+          <div class="mistri-body">
+            <div class="mistri-grid" id="mistriGrid"></div>
+          </div>
         </div>
       </div>
 
