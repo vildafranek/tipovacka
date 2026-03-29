@@ -440,8 +440,29 @@
     .pl-rank {
       font-family:'Barlow Condensed', sans-serif;
       font-weight:800; font-size:1.1rem; color:var(--muted); flex-shrink:0;
+      min-width:22px; text-align:right;
     }
+    .pl-logo { width:26px; height:26px; object-fit:contain; flex-shrink:0; }
     .pl-team { font-weight:600; font-size:.85rem; }
+
+    /* ─── MISTŘI SVĚTA SEKCE ─────────────────────────────── */
+    .mistri-section { margin-top:40px; }
+    .mistri-section .section-label { margin-bottom:16px; }
+    .mistri-grid {
+      display:grid; grid-template-columns:repeat(2, 1fr); gap:20px;
+    }
+    .mistri-grid .player-card {
+      border: 1.5px solid rgba(232,50,26,.25);
+    }
+    .mistri-badge {
+      display:inline-flex; align-items:center; gap:6px;
+      background:linear-gradient(90deg, rgba(232,50,26,.18), rgba(27,140,214,.18));
+      border:1px solid rgba(232,50,26,.3);
+      border-radius:20px; padding:3px 10px;
+      font-size:.7rem; font-weight:700; letter-spacing:.5px;
+      text-transform:uppercase; color:var(--muted); margin-bottom:6px;
+    }
+    @media (max-width:768px) { .mistri-grid { grid-template-columns:1fr; } }
 
     /* no-results */
     .no-results { text-align:center; padding:48px 20px; color:var(--muted); }
@@ -724,6 +745,12 @@
       <div id="categoriesSection">
         <p class="section-label">Žebříčky</p>
         <div class="categories-grid" id="catGrid"></div>
+
+        <!-- Tipy Mistrů světa -->
+        <div class="mistri-section" id="mistriSection" style="display:none">
+          <p class="section-label">Tipy Mistrů světa</p>
+          <div class="mistri-grid" id="mistriGrid"></div>
+        </div>
       </div>
 
     </div>
@@ -886,6 +913,28 @@ const CATEGORIES = [
 ];
 
 /* ═══════════════════════════════════════════════════════════
+   TEAM LOGOS
+═══════════════════════════════════════════════════════════ */
+const TEAM_LOGOS = {
+  'Karlovy Vary':      'https://i.imgur.com/O4w3Sfn.png',
+  'Kladno':            'https://i.imgur.com/RU6Pup9.png',
+  'Liberec':           'https://i.imgur.com/gOphoYa.png',
+  'Litvínov':          'https://i.imgur.com/PZkCLfw.png',
+  'Pardubice':         'https://i.imgur.com/isU5OoU.png',
+  'Plzeň':             'https://i.imgur.com/oHghBc2.png',
+  'Sparta Praha':      'https://i.imgur.com/FBNmltI.png',
+  'Třinec':            'https://i.imgur.com/emb2cCW.png',
+  'Vítkovice':         'https://i.imgur.com/6wXEaRP.png',
+  'Mladá Boleslav':    'https://i.imgur.com/NsyBU2q.png',
+  'Olomouc':           'https://i.imgur.com/8ZPHMmW.png',
+  'Kometa Brno':       'https://i.imgur.com/A93pjvG.png',
+  'Mountfield HK':     'https://i.imgur.com/uAKXaDa.png',
+  'České Budějovice':  'https://i.imgur.com/iUnx3A5.png',
+};
+
+const MISTRI_NAMES = ['Vilém Franěk', 'Radek Duda', 'Honza Homolka', 'Jiří Tlustý'];
+
+/* ═══════════════════════════════════════════════════════════
    TIP COLUMNS — co hráč tipoval
 ═══════════════════════════════════════════════════════════ */
 const PLACEMENTS = Array.from({length:14}, (_,i) => ({
@@ -903,8 +952,14 @@ const BONUS_TIPS = [
   { label:'Tým — počet gólů',      key:'Tým - Počet gólů' },
   { label:'Tým — přesilovky',      key:'Tým - Počet přesilovek' },
   { label:'Tým — fauly',           key:'Tým - Počet faulů' },
+  { label:'Body mistra',           key:'Počet bodů mistra' },
+  { label:'Rozdíl 1.–2.',          key:'Rozdíl 1.-2.' },
+  { label:'Body posledního',       key:'Počet bodů - poslední' },
   { label:'Tipovačka — MISTŘI',    key:'Tipovačka - MISTŘI' },
-  { label:'Oblíbený MISTR',        key:'Oblíbený MISTR 1-4' },
+  { label:'Oblíbený MISTR 1',      key:'Oblíbený MISTR 1' },
+  { label:'Oblíbený MISTR 2',      key:'Oblíbený MISTR 2' },
+  { label:'Oblíbený MISTR 3',      key:'Oblíbený MISTR 3' },
+  { label:'Oblíbený MISTR 4',      key:'Oblíbený MISTR 4' },
 ];
 
 /* ═══════════════════════════════════════════════════════════
@@ -1005,6 +1060,7 @@ function processCSV(csvText) {
   });
 
   renderCategories();
+  renderMistriSection();
   document.getElementById('statCount').textContent      = allData.length;
   document.getElementById('statCategories').textContent = CATEGORIES.length;
 
@@ -1040,6 +1096,32 @@ function renderCategories() {
     card.addEventListener('click', () => openTop10(cat));
     grid.appendChild(card);
   });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MISTŘI SVĚTA SEKCE
+═══════════════════════════════════════════════════════════ */
+function renderMistriSection() {
+  const grid    = document.getElementById('mistriGrid');
+  const section = document.getElementById('mistriSection');
+
+  const found = MISTRI_NAMES.map(name => {
+    const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return allData.find(p => norm(p['Jméno a příjmení']) === norm(name));
+  }).filter(Boolean);
+
+  if (!found.length) { section.style.display = 'none'; return; }
+
+  grid.innerHTML = found.map(p => {
+    const name = (p['Jméno a příjmení'] || '').trim();
+    return `
+      <div>
+        <div class="mistri-badge">🎙️ Mistr světa</div>
+        ${buildPlayerCard(p)}
+      </div>`;
+  }).join('');
+
+  section.style.display = 'block';
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1193,10 +1275,15 @@ function buildPlayerCard(p) {
     const val = p[t.key];
     if (!val && val !== 0) return '';
     const num = parseInt(t.label);
-    const medal = num === 1 ? '🥇' : num === 2 ? '🥈' : num === 3 ? '🥉' : '';
+    const logoUrl = TEAM_LOGOS[val];
+    const logoHtml = logoUrl
+      ? `<img class="pl-logo" src="${logoUrl}" alt="${val}" loading="lazy">`
+      : '';
+    const medal = !logoUrl && num <= 3 ? (num === 1 ? '🥇' : num === 2 ? '🥈' : '🥉') : '';
     return `
       <div class="pl-item">
         <span class="pl-rank">${num}.</span>
+        ${logoHtml}
         <span class="pl-team">${medal}${val}</span>
       </div>`;
   }).filter(Boolean).join('');
@@ -1211,13 +1298,6 @@ function buildPlayerCard(p) {
         <div class="tip-val">${val}</div>
       </div>`;
   }).filter(Boolean).join('');
-
-  /* -- message -- */
-  const msgHtml = p['Vzkaz'] ? `
-    <div class="tip-item" style="grid-column:1/-1; background:rgba(27,140,214,.08); border:1px solid rgba(27,140,214,.2)">
-      <div class="tip-lbl">💬 Vzkaz</div>
-      <div class="tip-val" style="font-style:italic">"${p['Vzkaz']}"</div>
-    </div>` : '';
 
   return `
     <div class="player-card">
@@ -1235,9 +1315,9 @@ function buildPlayerCard(p) {
         ${placements ? `<div class="tips-head">🏒 Tipy na pořadí</div>
         <div class="placement-grid">${placements}</div>` : ''}
 
-        ${bonusHtml || msgHtml ? `
+        ${bonusHtml ? `
           <div class="tips-head" style="margin-top:${placements ? '18px':'0'}">🎯 Bonusové tipy</div>
-          <div class="tips-grid">${bonusHtml}${msgHtml}</div>` : ''}
+          <div class="tips-grid">${bonusHtml}</div>` : ''}
       </div>
     </div>`;
 }
