@@ -1006,7 +1006,7 @@ function parseCSV(text) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   DATA FETCHING
+   DATA FETCHING — CSV (scoring) + gviz (placement tipy)
 ═══════════════════════════════════════════════════════════ */
 function loadData() {
   document.getElementById('stateLoading').style.display = 'block';
@@ -1015,12 +1015,40 @@ function loadData() {
   document.getElementById('statBar').style.display      = 'none';
   document.getElementById('refreshBtn').classList.add('spinning');
 
-  fetch(CSV_URL)
-    .then(r => r.text())
-    .then(csv => processCSV(csv))
+  const PLACEMENT_COLS = Array.from({length:14}, (_,i) => `${i+1}. místo`);
+  const GVIZ_URL_FULL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+
+  Promise.all([
+    fetch(CSV_URL).then(r => r.text()),
+    fetch(GVIZ_URL_FULL).then(r => r.text()),
+  ])
+    .then(([csv, gvizRaw]) => {
+      // Parse gviz JSON
+      const match = gvizRaw.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+      let gvizMap = {};
+      if (match) {
+        try {
+          const gviz = JSON.parse(match[1]);
+          const cols = gviz.table.cols.map(c => c.label);
+          gviz.table.rows.forEach(row => {
+            const nameIdx = cols.indexOf('Jméno a příjmení');
+            const name = row.c[nameIdx]?.v;
+            if (!name) return;
+            const entry = {};
+            PLACEMENT_COLS.forEach(col => {
+              const idx = cols.indexOf(col);
+              if (idx >= 0) entry[col] = row.c[idx]?.v || null;
+            });
+            gvizMap[name.trim()] = entry;
+          });
+        } catch(e) { console.warn('gviz parse error', e); }
+      }
+      processCSV(csv, gvizMap);
+    })
     .catch(err => {
       console.error('Chyba při načítání dat:', err);
-      showError();
+      // Fallback: jen CSV
+      fetch(CSV_URL).then(r => r.text()).then(csv => processCSV(csv, {})).catch(() => showError());
     });
 }
 
@@ -1030,7 +1058,7 @@ function showError() {
   document.getElementById('stateError').style.display   = 'block';
 }
 
-function processCSV(csvText) {
+function processCSV(csvText, gvizMap = {}) {
   document.getElementById('refreshBtn').classList.remove('spinning');
 
   const rows = parseCSV(csvText);
@@ -1047,6 +1075,9 @@ function processCSV(csvText) {
         const num = parseFloat(raw.replace(',', '.'));
         obj[h] = raw === '' ? null : (!isNaN(num) && raw !== '' ? num : raw);
       });
+      // Doplň placement tipy z gviz (CSV je má prázdné)
+      const name = (obj['Jméno a příjmení'] || '').trim();
+      if (gvizMap[name]) Object.assign(obj, gvizMap[name]);
       return obj;
     })
     .filter(r => r['Jméno a příjmení'] && String(r['Jméno a příjmení']).trim() !== '');
