@@ -1559,22 +1559,47 @@ document.addEventListener('DOMContentLoaded', () => {
 (function loadLatestVideo() {
   const CHANNEL_ID = 'UCK0NTTDCBCO11KnWXmhHWOA';
   const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
-  const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`;
-  fetch(proxy)
-    .then(r => r.json())
-    .then(data => {
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(data.contents, 'text/xml');
-      const entry = xml.querySelector('entry');
-      if (!entry) return;
-      const videoId = entry.querySelector('videoId')?.textContent ||
-        (entry.querySelector('link')?.getAttribute('href') || '').split('v=')[1];
-      if (videoId) {
-        const embed = document.getElementById('podcastEmbed');
-        if (embed) embed.src = `https://www.youtube.com/embed/${videoId}`;
-      }
-    })
-    .catch(() => {/* fallback: playlist stays */});
+
+  function setVideo(videoId) {
+    const embed = document.getElementById('podcastEmbed');
+    if (embed && videoId) embed.src = `https://www.youtube.com/embed/${videoId}`;
+  }
+
+  function parseRSS(xmlText) {
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(xmlText, 'text/xml');
+    const entry = xml.querySelector('entry');
+    if (!entry) return null;
+    // Try yt:videoId (with or without namespace)
+    const vidEl = entry.querySelector('videoId') ||
+                  entry.getElementsByTagName('yt:videoId')[0];
+    if (vidEl?.textContent) return vidEl.textContent;
+    // Fallback: parse from link href
+    const href = entry.querySelector('link')?.getAttribute('href') || '';
+    const m = href.match(/[?&]v=([^&]+)/);
+    return m ? m[1] : null;
+  }
+
+  // Try multiple CORS proxies in sequence
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
+  ];
+
+  (async function tryProxies() {
+    for (const url of proxies) {
+      try {
+        const r = await fetch(url, { signal: AbortSignal.timeout(5000) });
+        if (!r.ok) continue;
+        const text = await r.text();
+        const videoId = parseRSS(text);
+        if (videoId) { setVideo(videoId); return; }
+      } catch(e) { /* try next */ }
+    }
+    // All proxies failed — playlist fallback stays
+    console.warn('Nepodařilo se načíst nejnovější video z YT RSS');
+  })();
 })();
 
 /* ═══════════════════════════════════════════════════════════
