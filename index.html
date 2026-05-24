@@ -960,7 +960,8 @@
    CONFIG
 ═══════════════════════════════════════════════════════════ */
 const SHEET_ID  = '1ERE7N3K7M-PeILf22GiD44qHAdDtgm-d9TQqPnpEXvk';
-const CSV_URL   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+const SHEET_NAME = 'Přehled fans';
+const CSV_URL   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 const GVIZ_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:__gvizCallback`;
 
 /* ═══════════════════════════════════════════════════════════
@@ -1111,7 +1112,7 @@ function loadData() {
   document.getElementById('refreshBtn').classList.add('spinning');
 
   const PLACEMENT_COLS = Array.from({length:14}, (_,i) => `${i+1}. místo`);
-  const GVIZ_URL_FULL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+  const GVIZ_URL_FULL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
   Promise.all([
     fetch(CSV_URL).then(r => r.text()),
